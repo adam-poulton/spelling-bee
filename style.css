@@ -7,6 +7,14 @@ html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockq
     vertical-align: baseline;
 }
 
+ol, ul {
+    list-style: none;
+}
+
+html, body {
+    height: 100%;
+}
+
 html {
     font-family: 'Libre Franklin';
 }
@@ -19,13 +27,192 @@ html {
     text-align: center;
     font-size: 2em;
     font-weight: 700;
-    padding-bottom: 20px;
+    padding: 20px;
 }
 
 .container {
+    background: #fff;
+    flex: 1 0 auto;
     display: flex;
     flex-direction: column;
-    padding: 20px
+}
+
+.content-box:not(.expanded) {
+    overflow-y: auto;
+}
+
+.content-box {
+    flex-grow: 1;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-content: stretch;
+}
+
+@media (min-width: 768px) {
+.content-box {
+    flex-direction: row-reverse;
+    max-width: 1080px;
+    margin: 0 auto;
+}
+}
+
+@media (min-width: 768px) {
+    .status-box, .wordlist-box, .wordlist-drawer {
+        display: flex;
+        flex-direction: column;
+    }
+}
+
+@media (min-width: 768px) {
+    .status-box {
+        width: 50%;
+    }
+}
+
+@media (min-width: 768px) {
+    .wordlist-box {
+        display: flex;
+        flex-direction: column;
+    }
+}
+
+.wordlist-box {
+    border-radius: 6px;
+    border: 1px solid #dcdcdc;
+    overflow: hidden;
+    letter-spacing: .005em;
+}
+
+.progress-box {
+    margin-bottom: 0;
+}
+
+.wordlist-box, .progress-box {
+    margin: 12px;
+}
+
+@media (min-width: 768px) {
+    .wordlist-heading {
+        height: 60px;
+    }
+}
+
+.wordlist-heading {
+    position: relative;
+    overflow: hidden;
+    height: 45px;
+}
+
+@media (min-width: 768px) {
+.wordlist-drawer, .wordlist-window {
+    max-height: none !important;
+}
+}
+
+@media (min-width: 768px) {
+.status-box, .wordlist-box, .wordlist-drawer {
+    display: flex;
+    flex-direction: column;
+}
+}
+
+.wordlist-drawer {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 200ms ease;
+}
+
+@media (min-width: 768px) {
+    .wordlist-window {
+        overflow-x: auto;
+        height: calc(var(--vh, 1vh)*75);
+    }
+}
+
+.wordlist-window {
+    position: relative;
+    overflow: hidden;
+    height: calc(var(--vh, 1vh)*68);
+}
+
+@media (min-width: 768px) {
+    .wordlist-page {
+        margin-left: 25px;
+    }
+}
+
+.wordlist-page {
+    position: relative;
+    margin-left: 20px;
+    display: flex;
+    height: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    z-index: 0;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    scroll-margin: 0;
+    scroll-behavior: smooth;
+    overscroll-behavior: contain;
+}
+
+.wordlist-scroll-anchor {
+    left: 0%;
+    width: 100%;
+    height: 10px;
+    position: absolute;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+}
+
+@media (min-width: 768px) {
+    .wordlist-items-page {
+        padding: 0 0 24px;
+    }
+}
+
+.wordlist-items-page {
+    width: 100%;
+    display: flex;
+    flex-flow: column wrap;
+    align-content: flex-start;
+    height: calc(100% - 38px);
+    padding: 20px 0 24px;
+}
+
+.wordlist-items-page.single {
+    display: block;
+}
+
+@media (min-width: 768px) {
+    .wordlist-items-page>li {
+        margin-right: 25px;
+        width: calc(50% - 25px);
+    }
+}
+
+.wordlist-items-page>li {
+    margin-right: 20px;
+    padding: 4px 0 4px 1px;
+    margin-bottom: 7px;
+    border-bottom: 1px solid #dcdcdc;
+    width: calc(50% - 20px);
+}
+
+.anagram {
+    text-transform: capitalize;
+    font-size: 1em;
+    font-weight: 500;
+}
+
+.controls-box {
+    flex: 1;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .controls {
@@ -34,7 +221,12 @@ html {
     position: relative;
     align-items: center;
     max-height: 100%;
+    width: 80vw;
+    max-width: 290px;
+    z-index: 3;
+    padding-bottom: 45px;
 }
+
 
 .actions {
     width: auto;
@@ -67,6 +259,10 @@ html {
     letter-spacing: 0.01em;
     user-select: none;
     cursor: pointer;
+}
+
+.action:active {
+    background-color: #ededed;
 }
 
 .actions .action-delete {
@@ -108,6 +304,7 @@ html {
     position: relative;
     transform: translateY(0%);
     min-width: 1px;
+    user-select: none;
 }
 
 .input-bright {
@@ -154,17 +351,22 @@ html {
   justify-content: center;
   align-items: center;
   cursor: pointer;
+  transition: transform 0.3s ease;
+  transform-origin: center;
+}
+
+.hexagon:active {
+    transform: rotate(90deg) scale(0.8);
 }
 
 .hexagon span {
-  font-size: 24px;
-  font-weight: bold;
+  font-size: 1.875em;
   transform: rotate(-90deg);
   pointer-events: none;
   font-family: 'Libre Franklin';
   font-weight: 700;
-  font-size: 1.875em;
   text-transform: uppercase;
+  transform-origin: center;
 }
 
 .middle {
