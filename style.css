@@ -103,6 +103,14 @@ html {
     min-width: 1px;
 }
 
+.input-bright {
+    color: #f7da21;
+}
+
+.input-invalid {
+    color: #dcdcdc;
+}
+
 .input-content::after {
     content: "";
     display: block;
