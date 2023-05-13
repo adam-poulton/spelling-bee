@@ -15,9 +15,16 @@ html {
     box-sizing: inherit;
 }
 
+.title {
+    text-align: center;
+    font-size: 2em;
+    font-weight: 700;
+    padding-bottom: 20px;
+}
+
 .container {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     padding: 20px
 }
 
