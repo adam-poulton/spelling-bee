@@ -29,9 +29,54 @@ const removeInputChar = () => {
     }
 } 
 
+
+const clearInput = () => {
+    const inputContent = document.querySelector('.input-content');
+    inputContent.innerHTML = '';
+    inputContent.classList.remove('non-empty');
+}
+
+const getInputList = () => {
+    const inputContent = document.querySelector('.input-content');
+    let guess = [];
+    [...inputContent.children].forEach((child) => guess.push(child.innerText.toLowerCase()));
+    return guess
+}
+
+const tryGuess = () => {
+    let guess = getInputList();
+    let valid = guess.length > 0
+    guess.forEach(element => {
+        if (!puzzle.includes(element)){
+            valid = false
+        }
+    });
+    word = guess.join('');
+    if (!word.includes(puzzle.charAt(3))) {
+        valid = false;
+    }
+    // todo: check if guess is a real word
+    if (valid) {
+        addWordToList(word);
+        clearInput();
+    }
+}
+
+const addWordToList = (word) => {
+    const list = document.querySelector('.wordlist-items-page');
+    const newItem = document.createElement('li');
+    const newSpan = document.createElement('span');
+    newSpan.className = 'anagram';
+    newSpan.textContent = word;
+    newItem.appendChild(newSpan);
+    list.appendChild(newItem);
+}
+
 const setUp = () => {
     const deleteButton = document.querySelector('.action-delete');
+    const enterButton = document.querySelector('.action-enter');
     deleteButton.addEventListener('click', removeInputChar);
+    enterButton.addEventListener('click', tryGuess);
 
     let tiles = document.querySelectorAll('.hexagon');
     let i = 0;
