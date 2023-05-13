@@ -45,13 +45,17 @@ const setUp = () => {
     document.addEventListener('keydown', (e) => {
         let key = String(e.key);
         if (key === 'Enter') {
-            // Hook to enter button
+            // Hook to enter button when guess checking is implemented
+            return;
+        } 
+        else if (key === 'Backspace') {
+            removeInputChar();
             return;
         }
-        // Add delete button
 
-        if (key.length === 1){
-            // Hook to addInputChar
+        // Check if the key is a alphabetical character
+        if (key.length === 1 && /[a-zA-Z]/.test(key)){
+            addInputChar(key);
             return;
         }
     });
