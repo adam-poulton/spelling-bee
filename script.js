@@ -1,7 +1,13 @@
 const inputSpan = document.querySelector('.input-content');
 const shuffleButton = document.querySelector('.action-shuffle');
 const enterButton = document.querySelector('.action-enter');
-let puzzle = "abcdefg"
+const initialDate = '2023-04-01';
+let elapsed;
+let puzzle;
+let guesses = [];
+let answer;
+let seeds;
+let words;
 
 
 const addInputChar = (char) => {
@@ -51,12 +57,19 @@ const tryGuess = () => {
             valid = false
         }
     });
-    word = guess.join('');
+    let word = guess.join('');
     if (!word.includes(puzzle.charAt(3))) {
         valid = false;
     }
-    // todo: check if guess is a real word
+    if (guesses.includes(word)) {
+        valid = false;
+    }
+    if (!words.includes(word)) {
+        valid = false;
+    }
     if (valid) {
+        guesses.push(word);
+        setSavedGuesses(guesses);
         addWordToList(word);
         clearInput();
     }
@@ -72,12 +85,94 @@ const addWordToList = (word) => {
     list.appendChild(newItem);
 }
 
-const setUp = () => {
-    const deleteButton = document.querySelector('.action-delete');
-    const enterButton = document.querySelector('.action-enter');
-    deleteButton.addEventListener('click', removeInputChar);
-    enterButton.addEventListener('click', tryGuess);
+const loadGuesses = (guesses) => {
+    guesses.forEach(element => {
+        addWordToList(element)
+    });
+}
 
+const processPuzzleSeed = (str) => {
+    var charArray = str.split('');
+    var uniqueChars = [...new Set(charArray)];
+    return uniqueChars.join('');
+}
+  
+const shuffle = (arr) => {
+    var currentIndex = arr.length;
+    var temporaryValue, randomIndex;
+
+    while (currentIndex !== 0) {
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex -= 1;
+
+        temporaryValue = arr[currentIndex];
+        arr[currentIndex] = arr[randomIndex];
+        arr[randomIndex] = temporaryValue;
+    }
+
+    return arr;
+}
+
+const generatePuzzle = () => {
+    const lastElapsed = localStorage.getItem('lastElapsed');
+    elapsed = getDaysElapsed(initialDate).toString();
+    if (lastElapsed === elapsed) {
+        let savedGuesses = getSavedGuesses();
+        if (savedGuesses !== null) {
+            guesses = savedGuesses;
+            loadGuesses(guesses);
+        }
+    } else {
+        setSavedGuesses([]);
+        localStorage.setItem('lastElapsed', elapsed);
+    }
+
+    const index = elapsed % seeds.length;
+    answer = seeds[index];
+    puzzle = processPuzzleSeed(answer);
+    puzzle = reshuffle(puzzle.split(""), elapsed % puzzle.length).join("");
+
+}
+
+const getDaysElapsed = (arbitraryDate) => {
+    const currentDate = new Date();
+    const pastDate = new Date(arbitraryDate);
+    const timeDifference = currentDate.getTime() - pastDate.getTime();
+    const daysElapsed = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
+    return daysElapsed;
+}
+
+const getSavedGuesses = () => {
+    const savedGuesses = JSON.parse(localStorage.getItem('savedGuesses'));
+    return savedGuesses
+}
+
+const setSavedGuesses = (guesses) => {
+    localStorage.setItem('savedGuesses', JSON.stringify(guesses));
+}
+
+const reshuffle = (guesses, index) => {
+    const saved = guesses[index]; // Store the element at the specified index
+    const remaining = guesses.filter((_, i) => i !== index); // Get the remaining elements
+    const shuffled = remaining.sort(() => Math.random() - 0.5); // Shuffle the remaining elements
+    const middleIndex = Math.floor(shuffled.length / 2); // Calculate the middle index
+  
+    // Insert the saved element in the middle of the shuffled array
+    const result = [
+      ...shuffled.slice(0, middleIndex),
+      saved,
+      ...shuffled.slice(middleIndex)
+    ];
+  
+    return result;
+}
+
+const shufflePuzzle = () => {
+    puzzle = reshuffle(puzzle.split(""), elapsed % puzzle.length).join("");
+    updatePuzzleChars();
+}
+
+const insertPuzzleChars = () => {
     let tiles = document.querySelectorAll('.hexagon');
     let i = 0;
     tiles.forEach(el => {
@@ -86,7 +181,17 @@ const setUp = () => {
         });
         el.children[0].innerText = puzzle.charAt(i++);
     })
+}
 
+const updatePuzzleChars = () => {
+    let tiles = document.querySelectorAll('.hexagon');
+    let i = 0;
+    tiles.forEach(el => {
+        el.children[0].innerText = puzzle.charAt(i++);
+    })
+}
+
+const setKBDHooks = () => {
     document.addEventListener('keydown', (e) => {
         let key = String(e.key);
         if (key === 'Enter') {
@@ -104,8 +209,27 @@ const setUp = () => {
             return;
         }
     });
+}
 
-    
+const setUp = async () => {
+    const deleteButton = document.querySelector('.action-delete');
+    const enterButton = document.querySelector('.action-enter');
+    const shuffleButton = document.querySelector('.action-shuffle')
+    deleteButton.addEventListener('click', removeInputChar);
+    enterButton.addEventListener('click', tryGuess);
+    shuffleButton.addEventListener('click', shufflePuzzle);
+    let response;
+    try {
+        response = await fetch('seeds.json');
+        seeds = await response.json();
+        response = await fetch('words.json');
+        words = await response.json();
+        generatePuzzle();
+        insertPuzzleChars();
+    } catch (error) {
+        console.error('Error:', error);
+    }
+    setKBDHooks();
 }
 
 
